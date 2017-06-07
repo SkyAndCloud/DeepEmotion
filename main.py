@@ -18,6 +18,7 @@ from datetime import datetime
 from os import listdir
 import sys
 import face_detect
+import cv2
 
 DATA_DIR = '.'
 X_TRAIN_NPY = 'x_train.npy'
@@ -108,18 +109,22 @@ def printUsage():
     print '                       train: train model'
     print '                       test: test model'
 
+def rgb2gray(rgb):
+    return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
+
 def testCNN():
     global model
-    model = load_model('cnn.hdf5')
+    model = load_model('cnn_97_60.hdf5')
     files = [f for f in listdir('testset') if isfile(join('testset', f))]
-    for 
-    x_test = np.zeros((LEN_VAL, LEN_PIXEL, LEN_PIXEL, 1))
-    y_test = np.zeros((LEN_VAL, 1))
-    score = model.evaluate(x_val, y_val, batch_size=128)
-    print '[+]Test set: '
-    print '   Test score:', score[0]
-    print '   Test accuracy:', score[1]
-    print '[+]Done'
+    x_test = np.zeros((len(files), LEN_PIXEL, LEN_PIXEL, 1))
+    y_test = np.zeros((len(files), 1))
+    for i, f in enumerate(files):
+        print f
+        x_test[i] = face_detect.process_image(cv2.cvtColor(cv2.imread(join('testset', f)), cv2.COLOR_BGR2GRAY)).reshape((LEN_PIXEL, LEN_PIXEL, 1))
+        y_test[i] = f[0]
+    y_test = np_utils.to_categorical(y_test, CATEGORY_EMOTION)
+    print model.predict(x_test)
+    print y_test
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

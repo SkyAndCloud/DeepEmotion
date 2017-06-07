@@ -20,11 +20,13 @@ def process_image(img):
 	"""
     face_cascade = cv2.CascadeClassifier('/usr/share/opencv/haarcascades/haarcascade_frontalface_default.xml')
     tmp = face_cascade.detectMultiScale(img, 1.3, 5)
+    print tmp
     rect = tmp[0]
     face = img[rect[1]:(rect[1]+rect[2]), rect[0]:(rect[0]+rect[3])]
     try:
         i = cv2.resize(face, (48, 48))
     except:
+        print 'resize error'
         exit(1)
     i = cv2.bilateralFilter(i,15,10,10)
     i = cv2.fastNlMeansDenoising(i,None,4,7,21)
